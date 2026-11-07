@@ -1,5 +1,0 @@
-obs b=15 s1=5 s2=11 s3=30 count=536870948 expected=100663118 first=[0x80000000, 0x8000000F, 0x80000011, 0x8000001C, 0x80000025] last=[0x7FFFFFDF, 0x7FFFFFE0, 0x7FFFFFEF, 0x7FFFFFF1, 0x7FFFFFF5] (17.0s) MISMATCH
-obs b=15 s1=2 s2=7 s3=30 count=0 expected=1310611 first=[0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000] last=[0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000] (10.8s) MISMATCH
-obs b=10 s1=3 s2=5 s3=20 count=0 expected=23255942 first=[0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000] last=[0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000] (19.4s) MISMATCH
-Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: Index 0 out of bounds for length 0
-	at CrossCheck.main(CrossCheck.java:99)

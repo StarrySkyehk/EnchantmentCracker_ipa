@@ -87,7 +87,18 @@ final class CrackerModel: ObservableObject {
     private let cracker = SeedCracker()
     private var progressTimer: Timer?
 
-    init() {}
+    init() {
+        if ProcessInfo.processInfo.arguments.contains("-demo") {
+            bookshelvesText = "15"
+            slot1Text = "5"
+            slot2Text = "11"
+            slot3Text = "30"
+            statusTitle = "可能的种子数：1.01 亿个"
+            statusDetail = "换一个书架数量再点「检查」继续缩小范围"
+            status = .possible(100_663_118)
+            possibleSeeds = 100_663_118
+        }
+    }
 
     deinit {
         progressTimer?.invalidate()

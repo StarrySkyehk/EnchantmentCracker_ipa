@@ -1,0 +1,84 @@
+name: Simulator smoke test & screenshots
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Run in iOS Simulator
+    runs-on: macos-15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: |
+          if ! command -v xcodegen >/dev/null 2>&1; then brew install xcodegen; fi
+          xcodegen generate --spec project.yml
+
+      - name: Build for simulator
+        run: |
+          set -o pipefail
+          xcodebuild -project EnchantmentCracker.xcodeproj \
+            -scheme EnchantmentCracker -configuration Debug -sdk iphonesimulator \
+            -derivedDataPath build build 2>&1 | tee simbuild.log | tail -5
+          exit ${PIPESTATUS[0]}
+
+      - name: Pick simulator
+        id: sim
+        run: |
+          xcrun simctl list devices available | head -40
+          DEVICE=$(xcrun simctl list devices available | grep -E "iPhone 1[6-9]|iPhone 1[5-9]" | head -1 \
+                   | grep -oE "[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}")
+          if [ -z "$DEVICE" ]; then
+            DEVICE=$(xcrun simctl list devices available | grep "iPhone" | head -1 \
+                     | grep -oE "[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}")
+          fi
+          echo "picked: $DEVICE"
+          echo "device=$DEVICE" >> "$GITHUB_OUTPUT"
+
+      - name: Boot simulator
+        run: |
+          D="${{ steps.sim.outputs.device }}"
+          xcrun simctl boot "$D" || true
+          xcrun simctl bootstatus "$D" -b
+          xcrun simctl status_bar "$D" override --time "9:41" --dataNetwork wifi \
+            --wifiMode active --wifiBars 3 --cellularMode active --cellularBars 4 \
+            --batteryState charged --batteryLevel 100 || true
+
+      - name: Install, launch, screenshot each tab
+        run: |
+          set -e
+          D="${{ steps.sim.outputs.device }}"
+          APP="build/Build/Products/Debug-iphonesimulator/EnchantmentCracker.app"
+          ls -la "$APP" || (echo "no app bundle"; find build/Build/Products -maxdepth 3 -name "*.app"; exit 1)
+          xcrun simctl install "$D" "$APP"
+          for t in 1 2 3; do
+            xcrun simctl terminate "$D" net.earthcomputer.enchcracker 2>/dev/null || true
+            echo "launching with -tab$t"
+            xcrun simctl launch "$D" net.earthcomputer.enchcracker "-tab$t" || true
+            sleep 5
+            xcrun simctl io "$D" screenshot "screenshot-tab$t.png" || true
+          done
+          ls -la screenshot-*.png
+
+      - name: Collect crash logs
+        if: always()
+        run: |
+          ls -la ~/Library/Logs/DiagnosticReports/ 2>/dev/null | tail -20 || true
+          find ~/Library/Logs/DiagnosticReports -name "*EnchantmentCracker*" -o -name "*.ips" 2>/dev/null | head -5 | while read f; do
+            echo "===== $f ====="; head -40 "$f"; done
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulator-screenshots
+          path: |
+            screenshot-*.png
+            simbuild.log
+          if-no-files-found: warn
+          retention-days: 30
