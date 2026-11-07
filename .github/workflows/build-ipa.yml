@@ -1,0 +1,116 @@
+name: Build unsigned IPA
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "README.md"
+      - "LICENSE"
+  workflow_dispatch:
+    inputs:
+      debug_build_log:
+        description: "Print the full xcodebuild log"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-ipa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build IPA on macOS
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show toolchain versions
+        run: |
+          xcodebuild -version
+          swift --version
+          uname -m
+
+      - name: Install XcodeGen
+        run: |
+          if ! command -v xcodegen >/dev/null 2>&1; then
+            brew install xcodegen
+          fi
+          xcodegen --version
+
+      - name: Generate Xcode project
+        run: xcodegen generate --spec project.yml
+
+      - name: Build app (no code signing)
+        id: build
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project EnchantmentCracker.xcodeproj \
+            -scheme EnchantmentCracker \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_ENTITLEMENTS="" \
+            PROVISIONING_PROFILE_SPECIFIER="" \
+            DEVELOPMENT_TEAM="" \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=NO \
+            build 2>&1 | tee xcodebuild.log
+          status=${PIPESTATUS[0]}
+          echo "xcodebuild exit: $status"
+          exit $status
+
+      - name: Show errors
+        if: failure()
+        run: |
+          echo "===== error / warning summary ====="
+          grep -nE "error:|warning:|BUILD FAILED|The following build commands failed" xcodebuild.log | head -200 || true
+          echo "===== tail of log ====="
+          tail -120 xcodebuild.log || true
+
+      - name: Package into unsigned IPA
+        run: |
+          set -euo pipefail
+          APP_PATH="build/Build/Products/Release-iphoneos/EnchantmentCracker.app"
+          if [ ! -d "$APP_PATH" ]; then
+            echo "App bundle not found at $APP_PATH"
+            find build/Build/Products -maxdepth 3 -name "*.app" || true
+            exit 1
+          fi
+          rm -rf Payload EnchantmentCracker.ipa
+          mkdir -p Payload
+          cp -R "$APP_PATH" Payload/
+          # make sure the binary is executable after the zip round trip
+          chmod +x "Payload/EnchantmentCracker.app/EnchantmentCracker" 2>/dev/null || true
+          zip -qry EnchantmentCracker.ipa Payload
+          ls -lh EnchantmentCracker.ipa
+          unzip -l EnchantmentCracker.ipa | head -20
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: EnchantmentCracker-unsigned-ipa
+          path: |
+            EnchantmentCracker.ipa
+            xcodebuild.log
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Publish / refresh GitHub release
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v1.9-ios-$(date +%Y%m%d-%H%M%S)"
+          gh release create "$TAG" EnchantmentCracker.ipa \
+            --title "Enchantment Cracker for iOS ($TAG)" \
+            --notes "Unsigned IPA built from source by GitHub Actions (macOS). Sign it with Sideloadly / AltStore / TrollStore before installing." \
+            --latest || true
