@@ -115,12 +115,15 @@ final class SeedCracker {
             var matched = true
             for o in obs {
                 rng.setSeed(seed)
-                let a = rng.nextInt(8)
-                let b = rng.nextInt(o.bookshelves + 1)
-                let level = a + 1 + (o.bookshelves >> 1) + b
+                let base = 1 + (o.bookshelves >> 1)
+                let bs = o.bookshelves
+                // Each of the three table slots draws its own generic enchantability level.
+                var level = rng.nextInt(8) + base + rng.nextInt(bs + 1)
                 if max(level / 3, 1) != o.slot1 { matched = false; break }
+                level = rng.nextInt(8) + base + rng.nextInt(bs + 1)
                 if level * 2 / 3 + 1 != o.slot2 { matched = false; break }
-                if max(level, o.bookshelves * 2) != o.slot3 { matched = false; break }
+                level = rng.nextInt(8) + base + rng.nextInt(bs + 1)
+                if max(level, bs * 2) != o.slot3 { matched = false; break }
             }
             if matched {
                 kept.append(seed)
@@ -171,12 +174,15 @@ final class SeedCracker {
                 var matched = true
                 for o in obs {
                     rng.setSeed(seed)
-                    let a = rng.nextInt(8)
-                    let b = rng.nextInt(o.bookshelves + 1)
-                    let level = a + 1 + (o.bookshelves >> 1) + b
+                    let base = 1 + (o.bookshelves >> 1)
+                    let bs = o.bookshelves
+                    // Each of the three table slots draws its own generic enchantability level.
+                    var level = rng.nextInt(8) + base + rng.nextInt(bs + 1)
                     if max(level / 3, 1) != o.slot1 { matched = false; break }
+                    level = rng.nextInt(8) + base + rng.nextInt(bs + 1)
                     if level * 2 / 3 + 1 != o.slot2 { matched = false; break }
-                    if max(level, o.bookshelves * 2) != o.slot3 { matched = false; break }
+                    level = rng.nextInt(8) + base + rng.nextInt(bs + 1)
+                    if max(level, bs * 2) != o.slot3 { matched = false; break }
                 }
                 if matched {
                     localMatches += 1

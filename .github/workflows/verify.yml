@@ -38,8 +38,8 @@ jobs:
 
       - name: Compile benchmark
         run: |
-          swiftc -O Sources/Core/Engine/*.swift bench/main.swift -o bench 2>&1 | tee bench-compile.log
+          swiftc -O Sources/Core/Engine/*.swift bench/main.swift -o /tmp/bench 2>&1 | tee bench-compile.log
           exit ${PIPESTATUS[0]}
 
       - name: Run benchmark
-        run: ./bench
+        run: /tmp/bench

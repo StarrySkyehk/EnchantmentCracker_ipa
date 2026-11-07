@@ -177,6 +177,7 @@ struct MCNumberField: View {
             .font(Theme.monoField)
             .foregroundStyle(Theme.textPrimary)
             .tint(Theme.accentGreen)
+            .padding(.horizontal, 10)
             .frame(maxWidth: .infinity, minHeight: 48)
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
@@ -203,6 +204,7 @@ struct MCHexField: View {
             .font(Theme.monoBody)
             .foregroundStyle(Theme.textPrimary)
             .tint(Theme.accentPurple)
+            .padding(.horizontal, 8)
             .frame(maxWidth: .infinity, minHeight: 46)
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)

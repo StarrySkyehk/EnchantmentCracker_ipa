@@ -52,82 +52,90 @@ struct CalculatorView: View {
         MCCard {
             VStack(alignment: .leading, spacing: 14) {
                 MCCardHeader(symbol: "shippingbox.fill", title: L.itemSetupTitle)
-
-                VStack(alignment: .leading, spacing: 7) {
-                    Text(L.materialSection)
-                        .font(Theme.fontSection)
-                        .foregroundStyle(Theme.textSecondary)
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(model.availableMaterials) { material in
-                                MCChip(title: material.displayName,
-                                       isSelected: model.material.displayName == material.displayName) {
-                                    model.selectMaterial(material)
-                                }
-                            }
-                        }
-                        .padding(.vertical, 1)
-                    }
-                }
-
-                VStack(alignment: .leading, spacing: 7) {
-                    Text(L.itemSection)
-                        .font(Theme.fontSection)
-                        .foregroundStyle(Theme.textSecondary)
-                    Menu {
-                        ForEach(model.itemOptions, id: \.id) { item in
-                            Button(item.displayName) {
-                                model.itemID = item.id
-                            }
-                        }
-                    } label: {
-                        HStack(spacing: 8) {
-                            Text(currentItemName)
-                                .font(Theme.monoBody)
-                                .foregroundStyle(Theme.textPrimary)
-                                .lineLimit(1)
-                            Spacer(minLength: 8)
-                            Image(systemName: "chevron.down")
-                                .font(.system(size: 11, weight: .bold))
-                                .foregroundStyle(Theme.accentGreen)
-                        }
-                        .padding(.horizontal, 12)
-                        .frame(maxWidth: .infinity, minHeight: 46)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .fill(Theme.controlFill)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .stroke(Theme.cardStroke, lineWidth: 1)
-                        )
-                    }
-                }
-
+                materialRow
+                itemRow
                 MCDivider()
+                limitsRow
+            }
+        }
+    }
 
-                HStack(alignment: .top, spacing: 14) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(L.maxBookshelves)
-                            .font(Theme.fontSection)
-                            .foregroundStyle(Theme.textSecondary)
-                        MCNumberField(text: $model.maxBookshelvesText, placeholder: "15")
-                        Text(L.maxBookshelvesTooltip)
-                            .font(Theme.fontCaption)
-                            .foregroundStyle(Theme.textMuted)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(L.playerLevel)
-                            .font(Theme.fontSection)
-                            .foregroundStyle(Theme.textSecondary)
-                        MCNumberField(text: $model.playerLevelText, placeholder: "30")
-                        Text(L.playerLevelTooltip)
-                            .font(Theme.fontCaption)
-                            .foregroundStyle(Theme.textMuted)
-                            .fixedSize(horizontal: false, vertical: true)
+    private var materialRow: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Text(L.materialSection)
+                .font(Theme.fontSection)
+                .foregroundStyle(Theme.textSecondary)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(model.availableMaterials) { material in
+                        MCChip(title: material.displayName,
+                               isSelected: model.material.displayName == material.displayName) {
+                            model.selectMaterial(material)
+                        }
                     }
                 }
+                .padding(.vertical, 1)
+            }
+        }
+    }
+
+    private var itemRow: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Text(L.itemSection)
+                .font(Theme.fontSection)
+                .foregroundStyle(Theme.textSecondary)
+            Menu {
+                ForEach(model.itemOptions, id: \.id) { item in
+                    Button(item.displayName) {
+                        model.itemID = item.id
+                    }
+                }
+            } label: {
+                HStack(spacing: 8) {
+                    Text(currentItemName)
+                        .font(Theme.monoBody)
+                        .foregroundStyle(Theme.textPrimary)
+                        .lineLimit(1)
+                    Spacer(minLength: 8)
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(Theme.accentGreen)
+                }
+                .padding(.horizontal, 12)
+                .frame(maxWidth: .infinity, minHeight: 46)
+                .background(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(Theme.controlFill)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(Theme.cardStroke, lineWidth: 1)
+                )
+            }
+        }
+    }
+
+    private var limitsRow: some View {
+        HStack(alignment: .top, spacing: 14) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(L.maxBookshelves)
+                    .font(Theme.fontSection)
+                    .foregroundStyle(Theme.textSecondary)
+                MCNumberField(text: $model.maxBookshelvesText, placeholder: "15")
+                Text(L.maxBookshelvesTooltip)
+                    .font(Theme.fontCaption)
+                    .foregroundStyle(Theme.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            VStack(alignment: .leading, spacing: 6) {
+                Text(L.playerLevel)
+                    .font(Theme.fontSection)
+                    .foregroundStyle(Theme.textSecondary)
+                MCNumberField(text: $model.playerLevelText, placeholder: "30")
+                Text(L.playerLevelTooltip)
+                    .font(Theme.fontCaption)
+                    .foregroundStyle(Theme.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }
@@ -258,7 +266,7 @@ struct CalculatorView: View {
             }
             .buttonStyle(MCButtonStyle(kind: .primary))
             .disabled(!canCalculate)
-            .opacity(canCalculate ? 1.0 : 0.45)
+            .opacity(canCalculate || model.isCalculating ? 1.0 : 0.45)
 
             Text(L.calculateTooltip)
                 .font(Theme.fontCaption)

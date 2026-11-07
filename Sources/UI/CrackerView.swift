@@ -194,37 +194,48 @@ struct CrackerView: View {
                     .font(Theme.fontCaption)
                     .foregroundStyle(Theme.textMuted)
                     .fixedSize(horizontal: false, vertical: true)
-                HStack(spacing: 10) {
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text(L.xpSeed1)
-                            .font(Theme.fontCaption)
-                            .foregroundStyle(Theme.textSecondary)
-                        MCHexField(text: $model.xpSeed1Text, placeholder: "8 位十六进制")
-                    }
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text(L.xpSeed2)
-                            .font(Theme.fontCaption)
-                            .foregroundStyle(Theme.textSecondary)
-                        MCHexField(text: $model.xpSeed2Text, placeholder: "8 位十六进制")
-                    }
-                }
+                xpSeedInputs
                 Button(L.calculateSeed) {
                     model.calculatePlayerSeed()
                 }
                 .buttonStyle(MCButtonStyle(kind: .secondary))
                 MCDivider()
-                HStack(alignment: .bottom, spacing: 10) {
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text(L.playerSeed)
-                            .font(Theme.fontCaption)
-                            .foregroundStyle(Theme.textSecondary)
-                        MCHexField(text: $model.playerSeedText, placeholder: L.playerSeedPlaceholder)
-                    }
-                    if !model.playerSeedStatus.isEmpty {
-                        MCStatusPill(text: model.playerSeedStatus, color: playerSeedStatusColor)
-                            .padding(.bottom, 6)
-                    }
-                }
+                playerSeedRow
+            }
+        }
+    }
+
+    private var xpSeedInputs: some View {
+        HStack(spacing: 10) {
+            hexColumn(title: L.xpSeed1,
+                      text: $model.xpSeed1Text,
+                      placeholder: "8 位十六进制")
+            hexColumn(title: L.xpSeed2,
+                      text: $model.xpSeed2Text,
+                      placeholder: "8 位十六进制")
+        }
+    }
+
+    private func hexColumn(title: String, text: Binding<String>, placeholder: String) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(title)
+                .font(Theme.fontCaption)
+                .foregroundStyle(Theme.textSecondary)
+            MCHexField(text: text, placeholder: placeholder)
+        }
+    }
+
+    private var playerSeedRow: some View {
+        HStack(alignment: .bottom, spacing: 10) {
+            VStack(alignment: .leading, spacing: 5) {
+                Text(L.playerSeed)
+                    .font(Theme.fontCaption)
+                    .foregroundStyle(Theme.textSecondary)
+                MCHexField(text: $model.playerSeedText, placeholder: L.playerSeedPlaceholder)
+            }
+            if !model.playerSeedStatus.isEmpty {
+                MCStatusPill(text: model.playerSeedStatus, color: playerSeedStatusColor)
+                    .padding(.bottom, 6)
             }
         }
     }
