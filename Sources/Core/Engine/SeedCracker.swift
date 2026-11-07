@@ -1,4 +1,5 @@
 import Foundation
+import Dispatch
 
 /// One "enchanting table observation": the number of bookshelves plus the three
 /// XP cost levels that were displayed in the table.
