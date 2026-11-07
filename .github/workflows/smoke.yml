@@ -23,7 +23,7 @@ jobs:
         run: |
           set -o pipefail
           xcodebuild -project EnchantmentCracker.xcodeproj \
-            -scheme EnchantmentCracker -configuration Debug -sdk iphonesimulator \
+            -scheme EnchantmentCracker -configuration Release -sdk iphonesimulator \
             -derivedDataPath build build 2>&1 | tee simbuild.log | tail -5
           exit ${PIPESTATUS[0]}
 
@@ -53,7 +53,7 @@ jobs:
         run: |
           set -e
           D="${{ steps.sim.outputs.device }}"
-          APP="build/Build/Products/Debug-iphonesimulator/EnchantmentCracker.app"
+          APP="build/Build/Products/Release-iphonesimulator/EnchantmentCracker.app"
           ls -la "$APP" || (echo "no app bundle"; find build/Build/Products -maxdepth 3 -name "*.app"; exit 1)
           xcrun simctl install "$D" "$APP"
           for t in 1 2 3; do
@@ -63,6 +63,11 @@ jobs:
             sleep 5
             xcrun simctl io "$D" screenshot "screenshot-tab$t.png" || true
           done
+          # End-to-end cracker test: a real full 2^32 scan must finish and report ~100.7M seeds.
+          xcrun simctl terminate "$D" net.earthcomputer.enchcracker 2>/dev/null || true
+          xcrun simctl launch "$D" net.earthcomputer.enchcracker "-tab1" "-autocrack" || true
+          sleep 120
+          xcrun simctl io "$D" screenshot "screenshot-crack.png" || true
           ls -la screenshot-*.png
 
       - name: Collect crash logs

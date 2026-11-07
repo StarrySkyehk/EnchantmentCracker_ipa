@@ -88,6 +88,17 @@ final class CrackerModel: ObservableObject {
     private var progressTimer: Timer?
 
     init() {
+        if ProcessInfo.processInfo.arguments.contains("-autocrack") {
+            // Debug/simulator end-to-end test: run a real 2^32 scan shortly after launch.
+            bookshelvesText = "15"
+            slot1Text = "5"
+            slot2Text = "11"
+            slot3Text = "30"
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                self?.check()
+            }
+            return
+        }
         if ProcessInfo.processInfo.arguments.contains("-demo") {
             bookshelvesText = "15"
             slot1Text = "5"
