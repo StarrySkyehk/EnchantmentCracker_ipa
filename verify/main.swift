@@ -546,8 +546,8 @@ if skipCracker {
 
 print("")
 if totalFailures == 0 {
-    print("RESULT: PASS — all \(totalChecks) reference vectors matched")
+    print("RESULT: PASS - all \(totalChecks) reference vectors matched")
 } else {
-    print("RESULT: FAIL — \(totalFailures) of \(totalChecks) reference vectors mismatched")
+    print("RESULT: FAIL - \(totalFailures) of \(totalChecks) reference vectors mismatched")
 }
 exit(totalFailures == 0 ? 0 : 1)
