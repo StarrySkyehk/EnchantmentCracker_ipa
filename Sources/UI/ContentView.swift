@@ -1,14 +1,31 @@
 import SwiftUI
 
+/// Root view — three tabs, matching the original desktop application:
+/// cracker, calculator, about.
 struct ContentView: View {
+    @State private var selection: Int = 0
+
     var body: some View {
-        VStack(spacing: 12) {
-            Text("Enchantment Cracker")
-                .font(.largeTitle.bold())
-            Text("iOS build pipeline OK")
-                .foregroundStyle(.secondary)
+        TabView(selection: $selection) {
+            CrackerView()
+                .tabItem {
+                    Label(L.tabCracker, systemImage: "hammer.fill")
+                }
+                .tag(0)
+
+            CalculatorView()
+                .tabItem {
+                    Label(L.tabCalculator, systemImage: "wand.and.stars")
+                }
+                .tag(1)
+
+            AboutView()
+                .tabItem {
+                    Label(L.tabAbout, systemImage: "info.circle.fill")
+                }
+                .tag(2)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.black)
+        .tint(Theme.accentGreen)
+        .mcKeyboardToolbar()
     }
 }
