@@ -142,17 +142,18 @@ struct CalculatorView: View {
     // MARK: - Targets
 
     private var targetsCard: some View {
-        MCCard {
+        let options = model.enchantOptions
+        return MCCard {
             VStack(alignment: .leading, spacing: 10) {
                 MCCardHeader(symbol: "list.bullet", title: L.targetsSection)
-                if model.enchantOptions.isEmpty {
+                if options.isEmpty {
                     Text(L.noTargetsHint)
                         .font(Theme.fontCaption)
                         .foregroundStyle(Theme.textMuted)
                         .fixedSize(horizontal: false, vertical: true)
                 } else {
-                    ForEach(model.enchantOptions) { option in
-                        if option.id != model.enchantOptions.first?.id {
+                    ForEach(options) { option in
+                        if option.id != options.first?.id {
                             MCDivider()
                         }
                         enchantRow(option)
