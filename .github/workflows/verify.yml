@@ -3,10 +3,10 @@ name: Verify Swift port against Java reference
 on:
   workflow_dispatch:
     inputs:
-      full:
-        description: "Also run the slow full-2^32 seed-cracker vectors"
+      skip_cracker:
+        description: "Skip the 4 full-2^32 scans (fast: tables/calculator only)"
         type: boolean
-        default: true
+        default: false
 
 permissions:
   contents: read
@@ -23,12 +23,16 @@ jobs:
 
       - name: Compile verifier
         run: |
-          swiftc -O Sources/Core/Engine/*.swift verify/main.swift -o verify-check 2>&1 | tee compile.log
+          swiftc -O -whole-module-optimization Sources/Core/Engine/*.swift verify/main.swift -o verify-check 2>&1 | tee compile.log
           exit ${PIPESTATUS[0]}
 
       - name: Run verification
         run: |
-          ./verify-check ci/vectors/reference_vectors.json
+          if [ "${{ github.event.inputs.skip_cracker }}" = "true" ]; then
+            ./verify-check ci/vectors/reference_vectors.json --skip-cracker
+          else
+            ./verify-check ci/vectors/reference_vectors.json
+          fi
 
   benchmark:
     name: Cracker benchmark
@@ -38,7 +42,7 @@ jobs:
 
       - name: Compile benchmark
         run: |
-          swiftc -O Sources/Core/Engine/*.swift bench/main.swift -o /tmp/bench 2>&1 | tee bench-compile.log
+          swiftc -O -whole-module-optimization Sources/Core/Engine/*.swift bench/main.swift -o /tmp/bench 2>&1 | tee bench-compile.log
           exit ${PIPESTATUS[0]}
 
       - name: Run benchmark
