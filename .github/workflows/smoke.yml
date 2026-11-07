@@ -59,7 +59,7 @@ jobs:
           for t in 1 2 3; do
             xcrun simctl terminate "$D" net.earthcomputer.enchcracker 2>/dev/null || true
             echo "launching with -tab$t"
-            xcrun simctl launch "$D" net.earthcomputer.enchcracker "-tab$t" || true
+            xcrun simctl launch "$D" net.earthcomputer.enchcracker "-tab$t" "-demo" || true
             sleep 5
             xcrun simctl io "$D" screenshot "screenshot-tab$t.png" || true
           done

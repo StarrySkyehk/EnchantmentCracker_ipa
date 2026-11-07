@@ -101,6 +101,9 @@ gh workflow run verify.yml --ref main
 - **种子破解**：4 组观测的精确匹配数量 + 首/末 5 个匹配种子
 
 `verify/main.swift` 用 Swift 实现重算这些值并逐条比对，任何不一致都会以 `FAIL ... expected X, actual Y` 输出并让 CI 失败。
+
+当前状态：**15 个分组、8,000+ 项检查全部 PASS**（含 4 组种子破解的精确匹配数量：100,663,118 / 1,310,611 / 23,255,942 / 0）。
+破解速度（GitHub Actions `macos-15`，3 vCPU）：单次完整 2³² 扫描 **14.6 s ≈ 2.95 亿种子/秒**。
 重新生成参考向量：
 
 ```bash

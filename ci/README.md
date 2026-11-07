@@ -79,4 +79,25 @@ Conventions:
   cases; the other two pairs are arbitrary 32-bit XP-seed pairs (which can
   legitimately fail to recover, matching the app's "Fail!" behaviour).
 
-`ci/build/`, `ci/enchcracker.log` and `ci/run.log` are build/run artifacts.
+`ci/build/`, `ci/enchcracker.log` and `ci/run.log` are build/run artifacts (not
+committed).
+
+## Independent cross-check of the seed-cracker vectors
+
+`ci/CrossCheck.java` re-derives the four `seedCracker` vectors with a **different,
+straightforward** brute force (one code path per seed, its own worker threads,
+no `JavaSingleSeedCracker`/`IntArray`) and compares the exact match count plus
+the first/last five matching seeds against the JSON. It exists so the seed-cracker
+reference data does not depend on a single implementation.
+
+```bash
+# from the repository root
+javac -d ci/build ../enchcracker-src/src/enchcracker/SimpleRandom.java ci/CrossCheck.java
+
+cd ci
+java -Xmx1G -cp build CrossCheck vectors/reference_vectors.json
+```
+
+It prints one `obs ... OK/MISMATCH` line per observation and exits non-zero on
+any difference (a full run takes ~1 minute on 8 cores). Last result: all 4
+observations `OK` (counts 100663118 / 1310611 / 23255942 / 0).

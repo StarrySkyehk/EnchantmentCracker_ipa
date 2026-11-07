@@ -36,7 +36,7 @@ enum L {
     static let xpCost3Tooltip = "第三个附魔所需的经验等级"
 
     static let check = "检查"
-    static let checkTooltip = "使用这个功能来找到能能的XP种子"
+    static let checkTooltip = "使用这个功能来找到可能的XP种子"
     static let cancel = "取消"
     static let progressPrefix = "进度"
 

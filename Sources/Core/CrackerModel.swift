@@ -97,6 +97,10 @@ final class CrackerModel: ObservableObject {
             statusDetail = "换一个书架数量再点「检查」继续缩小范围"
             status = .possible(100_663_118)
             possibleSeeds = 100_663_118
+            playerSeedText = "1A2B3C4D5E6F"
+            xpSeed1Text = "12345678"
+            xpSeed2Text = "87654321"
+            targets = ["sharpness": 3, "smite": -1]
         }
     }
 
@@ -132,7 +136,9 @@ final class CrackerModel: ObservableObject {
             }
             level -= 5
         }
-        ids.sort()
+        let registryOrder = Dictionary(uniqueKeysWithValues:
+            Enchantments.tableEnchantments.enumerated().map { ($1, $0) })
+        ids.sort { (registryOrder[$0] ?? Int.max) < (registryOrder[$1] ?? Int.max) }
 
         return ids.map { id in
             EnchantOption(id: id,
