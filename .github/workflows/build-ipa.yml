@@ -8,8 +8,8 @@ on:
       - "LICENSE"
   workflow_dispatch:
     inputs:
-      debug_build_log:
-        description: "Print the full xcodebuild log"
+      release:
+        description: "Also publish this build as a GitHub release (unsigned IPA)"
         type: boolean
         default: false
 
@@ -104,13 +104,14 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-      - name: Publish / refresh GitHub release
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      - name: Publish GitHub release
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.release == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="v1.9-ios-$(date +%Y%m%d-%H%M%S)"
+          TAG="${RELEASE_TAG:-v1.9-ios}"
+          gh release delete "$TAG" --yes --cleanup-tag 2>/dev/null || true
           gh release create "$TAG" EnchantmentCracker.ipa \
-            --title "Enchantment Cracker for iOS ($TAG)" \
-            --notes "Unsigned IPA built from source by GitHub Actions (macOS). Sign it with Sideloadly / AltStore / TrollStore before installing." \
-            --latest || true
+            --title "Enchantment Cracker for iOS 1.9（未签名 IPA）" \
+            --notes-file .github/release-notes.md \
+            --latest
