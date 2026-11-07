@@ -2,7 +2,7 @@ import Foundation
 import Combine
 
 /// How much memory the cracker may spend on storing candidate seeds (4 bytes each).
-let crackerMemoryBudget = 16_000_000
+let crackerMemoryBudget = 32_000_000
 
 enum CrackStatus: Equatable {
     case idle
@@ -240,7 +240,7 @@ final class CrackerModel: ObservableObject {
         let scanned = cracker.scannedSeeds
         let fraction = Double(scanned) / Double(SeedCracker.totalSeeds)
         progress = min(1.0, max(0.0, fraction))
-        progressText = "进度：\(Int(progress * 100))%   " + formatBigNumber(scanned) + " / 4.29B"
+        progressText = "进度：\(Int(progress * 100))%   " + CrackerModel.formatBigNumber(scanned) + " / 4.29B"
     }
 
     private func finishCrack(_ result: CrackScanResult) {
