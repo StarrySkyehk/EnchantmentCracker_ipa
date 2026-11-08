@@ -12,6 +12,16 @@
 - 算法正确性由 `ci/` 里的 **Java 参考向量** 逐项校验：`verify/` 里的 Swift 验证程序
   会把 Swift 实现的计算结果与原版 Java 代码的输出逐条比对
 
+## 截图
+
+| 附魔破解器 | 附魔计算器 | 关于 |
+| --- | --- | --- |
+| ![cracker](docs/screenshots/screenshot-tab1.png) | ![calculator](docs/screenshots/screenshot-tab2.png) | ![about](docs/screenshots/screenshot-tab3.png) |
+
+实际破解结果（模拟器里跑完整 2³² 扫描，约 100.7M 个可能种子，与原版 Java 完全一致）：
+
+![crack result](docs/screenshots/screenshot-crack.png)
+
 ## 下载与安装
 
 IPA 在 [Releases](https://github.com/StarrySkyehk/EnchantmentCracker_ipa/releases) 页面，
